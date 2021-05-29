@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         readFile();
         // server();
-        find("ruslan");
+        find("from some any");
     }
 
     public static void readFile(){
@@ -88,7 +88,6 @@ public class Main {
         String[] words = phrase.split("\\W+");
         HashSet<String> res = new HashSet<String>(multiMap.get(words[0]));
 
-        //System.out.println(multiMap.get(words[0]));
         for(String word: words){
             res.retainAll(multiMap.get(word));
         }
@@ -100,7 +99,7 @@ public class Main {
         }
         System.out.println("Found in: ");
         for(String num : res){
-            //System.out.println("\t"+ emptyArr.stream().filter(s -> s.contains(num)));
+            System.out.println("\t"+ num);
         }
     }
 

@@ -13,11 +13,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.company.Server.server;
 
 public class Main {
-    public static Map<String, ArrayList<String>> multiMap = new HashMap<String, ArrayList<String>>();
+    public static Map<String, ConcurrentLinkedQueue<String>> multiMap = new ConcurrentHashMap<>();
     public static ArrayList<String> emptyArr = new ArrayList<>();
     public static ArrayList<String> stopWords = new ArrayList<String>();
     public static ArrayList<File> allFilesArr = new ArrayList<>();
@@ -29,7 +31,7 @@ public class Main {
         parallels();
         //readFile();
         // server();
-        find("");
+        find("even count how many movies");
 
     }
 
@@ -46,33 +48,6 @@ public class Main {
         for (int i = 0; i < NUMBER_THREADS; i++) {
             thread[i].join();
         }
-    }
-
-
-    public static void readFile() {
-        long m = System.currentTimeMillis();
-        File dir = new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet");
-        File[] files = dir.listFiles();
-
-        for (int i = 0; i < files.length; i++) {
-            //System.out.println(files[i]);
-            try (BufferedReader br = new BufferedReader(new FileReader(files[i]))) {
-                //чтение построчно
-                String s;
-                //System.out.println(files[i]);
-                while ((s = br.readLine()) != null) {
-                    s = refactText(s);
-                    // System.out.println(s);
-
-                    indexBuild(s, files[i]);
-
-                }
-            } catch (IOException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
-        System.out.println("debug");
-        System.out.println(System.currentTimeMillis() - m);
     }
 
     public static void allFiles(){
@@ -92,55 +67,12 @@ public class Main {
         }
     }
 
-    public static void fileOpen(File file){
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            //чтение построчно
-            String s;
-            while ((s = br.readLine()) != null) {
-                s = refactText(s);
-                indexBuild(s, file);
-            }
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
-
-
-    public static String indexBuild(String word, File file) {
-        String[] words = word.split(" ");
-        for (String wordIn : words) {
-            String docID = file.getParent() + "/" + file.getName();
-
-            if (stopWords.contains(wordIn)) {
-                continue;
-            }
-            if (multiMap.containsKey(wordIn)) {
-                if (multiMap.get(wordIn).contains(docID)) {
-                    continue;
-                }
-                multiMap.get(wordIn).add(docID);
-            } else {
-                multiMap.put(wordIn, new ArrayList<>());
-                multiMap.get(wordIn).add(docID);
-            }
-        }
-
-        return word;
-    }
-
-    public static String refactText(String text) {
-        text = text.toLowerCase();
-        text = text.replaceAll("<br /><br />", " ");
-        text = text.replaceAll("[^A-Za-zА-Яа-я0-9]", " ");
-        text = text.replaceAll("\\s+", " ");
-        return text;
-    }
 
     public static void find(String phrase) {
         phrase = phrase.toLowerCase();
         phrase = phrase.replaceAll("[^A-Za-zА-Яа-я0-9]", " ");
         String[] words = phrase.split("\\W+");
-        if(!multiMap.containsKey(words)){
+        if(!multiMap.containsKey(words[0])){
             System.out.println("No result");
         } else {
             HashSet<String> res = new HashSet<String>(multiMap.get(words[0]));

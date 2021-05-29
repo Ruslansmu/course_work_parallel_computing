@@ -7,15 +7,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 class Thread1 extends Thread {//конструктор
-    public Map<String, ArrayList<String>> multiMap = new HashMap<String, ArrayList<String>>();
+    public Map<String, ConcurrentLinkedQueue<String>> multiMap = new ConcurrentHashMap<>();
     public ArrayList<String> stopWords = new ArrayList<String>();
     ArrayList<File> allFilesArr = new ArrayList<>();
     int startIndex;
     int endIndex;
-    public Thread1(ArrayList<File> allFilesArr, int startIndex, int endIndex, ArrayList<String> stopWords, Map<String, ArrayList<String>> multiMap) { //конструктор класу, приймає дані для обчислень
+    public Thread1(ArrayList<File> allFilesArr, int startIndex, int endIndex, ArrayList<String> stopWords, Map<String, ConcurrentLinkedQueue<String>> multiMap) { //конструктор класу, приймає дані для обчислень
         this.allFilesArr = allFilesArr;
         this.startIndex = startIndex;
         this.endIndex = endIndex;
@@ -52,13 +54,13 @@ class Thread1 extends Thread {//конструктор
             if (stopWords.contains(wordIn)) {
                 continue;
             }
-            if (multiMap.containsKey(wordIn)) {
+            if (!multiMap.containsKey(wordIn)) {
+                multiMap.put(wordIn, new ConcurrentLinkedQueue<>());
+                multiMap.get(wordIn).add(docID);
+            } else {
                 if (multiMap.get(wordIn).contains(docID)) {
                     continue;
                 }
-                multiMap.get(wordIn).add(docID);
-            } else {
-                multiMap.put(wordIn, new ArrayList<>());
                 multiMap.get(wordIn).add(docID);
             }
         }

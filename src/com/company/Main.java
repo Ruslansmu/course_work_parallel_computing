@@ -4,6 +4,7 @@ import java.io.*;
 import java.lang.reflect.AnnotatedArrayType;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,26 +20,40 @@ public class Main {
     public static Map<String, ArrayList<String>> multiMap = new HashMap<String, ArrayList<String>>();
     public static ArrayList<String> emptyArr = new ArrayList<>();
     public static ArrayList<String> stopWords = new ArrayList<String>();
+    public static ArrayList<File> allFilesArr = new ArrayList<>();
+    public static int NUMBER_THREADS = 4;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        allFiles();
         initStopWords();
-        for (String stops : stopWords) {
-            System.out.println(stops);
-        }
-        readFile();
-
+        parallels();
+        //readFile();
         // server();
-        find("i");
+        find("");
 
+    }
+
+    public static void parallels() throws InterruptedException {
+        Thread1[] thread = new Thread1[NUMBER_THREADS];
+
+        int sizeOfFilesArray = allFilesArr.size();
+        for (int i = 0; i < NUMBER_THREADS; i++) {//разбиваем на потоки
+            thread[i] = new Thread1(allFilesArr, sizeOfFilesArray / NUMBER_THREADS * i,
+                    i == (NUMBER_THREADS - 1) ? sizeOfFilesArray : sizeOfFilesArray / NUMBER_THREADS * (i + 1), stopWords, multiMap);
+            thread[i].start();
+        }
+        //waiting for finish of threads
+        for (int i = 0; i < NUMBER_THREADS; i++) {
+            thread[i].join();
+        }
     }
 
 
     public static void readFile() {
-
         long m = System.currentTimeMillis();
         File dir = new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet");
-
         File[] files = dir.listFiles();
+
         for (int i = 0; i < files.length; i++) {
             //System.out.println(files[i]);
             try (BufferedReader br = new BufferedReader(new FileReader(files[i]))) {
@@ -60,11 +75,41 @@ public class Main {
         System.out.println(System.currentTimeMillis() - m);
     }
 
+    public static void allFiles(){
+
+        File[] dir = {new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet/test/neg"),
+                new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet/test/pos"),
+                new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet/train/neg"),
+                new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet/train/pos"),
+                new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet/train/unsup")};
+        for (File catalog : dir) {
+            File[] files = catalog.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                //System.out.println(files[i]);
+                allFilesArr.add(files[i]);
+
+            }
+        }
+    }
+
+    public static void fileOpen(File file){
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            //чтение построчно
+            String s;
+            while ((s = br.readLine()) != null) {
+                s = refactText(s);
+                indexBuild(s, file);
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+
     public static String indexBuild(String word, File file) {
         String[] words = word.split(" ");
         for (String wordIn : words) {
             String docID = file.getParent() + "/" + file.getName();
-
 
             if (stopWords.contains(wordIn)) {
                 continue;
@@ -137,5 +182,7 @@ public class Main {
             System.out.println(ex.getMessage());
         }
     }
+
+
 
 }

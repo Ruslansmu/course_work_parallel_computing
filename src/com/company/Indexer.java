@@ -72,17 +72,22 @@ public class Indexer {
         phrase = phrase.toLowerCase();
         phrase = phrase.replaceAll("[^A-Za-zА-Яа-я0-9]", " ");
         String[] words = phrase.split("\\W+");
-        HashSet<String> res;
-        if(!multiMap.containsKey(words[0])){
+        HashSet<String> res = null;
+
+        if(!multiMap.containsKey(words[0]) && words.length == 1){
             res = new HashSet<String>();
             res.add("No result");
             System.out.println("No result");
         } else {
-            res = new HashSet<String>(multiMap.get(words[0]));
-
+          //  res = new HashSet<String>(multiMap.get(words[0]));
+            boolean flag = true;
             for (String word : words) {
                 if (stopWords.contains(word)) {
                     continue;
+                }
+                if(flag){
+                    res = new HashSet<String>(multiMap.get(word));//
+                    flag = false;
                 }
                 res.retainAll(multiMap.get(word));
             }

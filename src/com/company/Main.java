@@ -17,12 +17,20 @@ import static com.company.Server.server;
 public class Main {
     public static Map<String,ArrayList<String>> multiMap = new HashMap<String,ArrayList<String>>();
     public static ArrayList<String> emptyArr = new ArrayList<>();
+    public static ArrayList<String> stopWords = new ArrayList<String>();
 
     public static void main(String[] args) throws IOException {
         readFile();
+        initStopWords();
+        for (String stops : stopWords){
+            System.out.println(stops);
+        }
         // server();
         find("from some any");
+
     }
+
+
 
     public static void readFile(){
 
@@ -31,7 +39,7 @@ public class Main {
 
         File[] files = dir.listFiles();
         for (int i = 0; i < files.length; i++){
-            System.out.println(files[i]);
+            //System.out.println(files[i]);
             try (BufferedReader br = new BufferedReader(new FileReader(files[i]))) {
                 //чтение построчно
                 String s;
@@ -44,7 +52,6 @@ public class Main {
 
                 }
             } catch (IOException ex) {
-
                 System.out.println(ex.getMessage());
             }
         }
@@ -53,7 +60,7 @@ public class Main {
     }
 
     public static String indexBuild(String word, File file){
-        System.out.println(file.getName());
+       // System.out.println(file.getName());
         String[] words = word.split(" ");
         for(String wordIn : words){
             System.out.println(wordIn);
@@ -101,6 +108,22 @@ public class Main {
         for(String num : res){
             System.out.println("\t"+ num);
         }
+    }
+
+    public static void initStopWords(){
+        File stopWord = new File("/Users/ruslanl/Documents/6semester/Паралельки/course/datasets/aclImdb/stopWords.txt");
+
+            try (BufferedReader br = new BufferedReader(new FileReader(stopWord))) {
+                //чтение построчно
+                String s;
+                //System.out.println(files[i]);
+                while ((s = br.readLine()) != null) {
+                    stopWords.add(s);
+                }
+            } catch (IOException ex) {
+
+                System.out.println(ex.getMessage());
+            }
     }
 
 }

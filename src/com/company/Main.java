@@ -12,33 +12,34 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import static com.company.Server.server;
 
 public class Main {
-    public static Map<String,ArrayList<String>> multiMap = new HashMap<String,ArrayList<String>>();
+    public static Map<String, ArrayList<String>> multiMap = new HashMap<String, ArrayList<String>>();
     public static ArrayList<String> emptyArr = new ArrayList<>();
     public static ArrayList<String> stopWords = new ArrayList<String>();
 
     public static void main(String[] args) throws IOException {
-        readFile();
         initStopWords();
-        for (String stops : stopWords){
+        for (String stops : stopWords) {
             System.out.println(stops);
         }
+        readFile();
+
         // server();
-        find("from some any");
+        find("i");
 
     }
 
 
-
-    public static void readFile(){
+    public static void readFile() {
 
         long m = System.currentTimeMillis();
         File dir = new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet");
 
         File[] files = dir.listFiles();
-        for (int i = 0; i < files.length; i++){
+        for (int i = 0; i < files.length; i++) {
             //System.out.println(files[i]);
             try (BufferedReader br = new BufferedReader(new FileReader(files[i]))) {
                 //чтение построчно
@@ -46,7 +47,7 @@ public class Main {
                 //System.out.println(files[i]);
                 while ((s = br.readLine()) != null) {
                     s = refactText(s);
-                   // System.out.println(s);
+                    // System.out.println(s);
 
                     indexBuild(s, files[i]);
 
@@ -59,31 +60,30 @@ public class Main {
         System.out.println(System.currentTimeMillis() - m);
     }
 
-    public static String indexBuild(String word, File file){
-       // System.out.println(file.getName());
+    public static String indexBuild(String word, File file) {
         String[] words = word.split(" ");
-        for(String wordIn : words){
-            System.out.println(wordIn);
-            String docID = file.getParent()+ "/" +file.getName();
-            System.out.println(docID);
+        for (String wordIn : words) {
+            String docID = file.getParent() + "/" + file.getName();
 
-            if (multiMap.containsKey(wordIn)){
-                if (multiMap.get(wordIn).contains(docID)){
+
+            if (stopWords.contains(wordIn)) {
+                continue;
+            }
+            if (multiMap.containsKey(wordIn)) {
+                if (multiMap.get(wordIn).contains(docID)) {
                     continue;
                 }
                 multiMap.get(wordIn).add(docID);
-            }
-            else {
+            } else {
                 multiMap.put(wordIn, new ArrayList<>());
                 multiMap.get(wordIn).add(docID);
             }
-            System.out.println("test");
         }
 
         return word;
     }
 
-    public static String refactText(String text){
+    public static String refactText(String text) {
         text = text.toLowerCase();
         text = text.replaceAll("<br /><br />", " ");
         text = text.replaceAll("[^A-Za-zА-Яа-я0-9]", " ");
@@ -91,39 +91,51 @@ public class Main {
         return text;
     }
 
-    public static void find(String phrase){
+    public static void find(String phrase) {
+        phrase = phrase.toLowerCase();
+        phrase = phrase.replaceAll("[^A-Za-zА-Яа-я0-9]", " ");
         String[] words = phrase.split("\\W+");
-        HashSet<String> res = new HashSet<String>(multiMap.get(words[0]));
+        if(!multiMap.containsKey(words)){
+            System.out.println("No result");
+        } else {
+            HashSet<String> res = new HashSet<String>(multiMap.get(words[0]));
 
-        for(String word: words){
-            res.retainAll(multiMap.get(word));
-        }
-      //  System.out.println(res);
 
-        if(res.size()==0) {
-            System.out.println("Not found");
-            return;
-        }
-        System.out.println("Found in: ");
-        for(String num : res){
-            System.out.println("\t"+ num);
+            for (String word : words) {
+                if (stopWords.contains(word)) {
+                    continue;
+                }
+                res.retainAll(multiMap.get(word));
+            }
+
+            if (res.size() == 0) {
+                System.out.println("Not found");
+                return;
+            }
+            if (res == null) {
+                System.out.println("Not found");
+                return;
+            }
+            System.out.println("Found in: ");
+            for (String num : res) {
+                System.out.println("\t" + num);
+            }
         }
     }
 
-    public static void initStopWords(){
+    public static void initStopWords() {
         File stopWord = new File("/Users/ruslanl/Documents/6semester/Паралельки/course/datasets/aclImdb/stopWords.txt");
 
-            try (BufferedReader br = new BufferedReader(new FileReader(stopWord))) {
-                //чтение построчно
-                String s;
-                //System.out.println(files[i]);
-                while ((s = br.readLine()) != null) {
-                    stopWords.add(s);
-                }
-            } catch (IOException ex) {
-
-                System.out.println(ex.getMessage());
+        try (BufferedReader br = new BufferedReader(new FileReader(stopWord))) {
+            //чтение построчно
+            String s;
+            while ((s = br.readLine()) != null) {
+                stopWords.add(s);
             }
+        } catch (IOException ex) {
+
+            System.out.println(ex.getMessage());
+        }
     }
 
 }

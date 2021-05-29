@@ -18,21 +18,20 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.company.Server.server;
 
-public class Main {
+public class Indexer {
     public static Map<String, ConcurrentLinkedQueue<String>> multiMap = new ConcurrentHashMap<>();
     public static ArrayList<String> emptyArr = new ArrayList<>();
     public static ArrayList<String> stopWords = new ArrayList<String>();
     public static ArrayList<File> allFilesArr = new ArrayList<>();
     public static int NUMBER_THREADS = 4;
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public Indexer() throws InterruptedException {//конструктор 
         allFiles();
         initStopWords();
         parallels();
         //readFile();
         // server();
         find("even count how many movies");
-
     }
 
     public static void parallels() throws InterruptedException {

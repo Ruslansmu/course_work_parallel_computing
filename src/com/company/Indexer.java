@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static com.company.Server.server;
+
 
 public class Indexer {
     public static Map<String, ConcurrentLinkedQueue<String>> multiMap = new ConcurrentHashMap<>();
@@ -25,13 +25,13 @@ public class Indexer {
     public static ArrayList<File> allFilesArr = new ArrayList<>();
     public static int NUMBER_THREADS = 4;
 
-    public Indexer() throws InterruptedException {//конструктор 
+    public Indexer() throws InterruptedException {//конструктор
         allFiles();
         initStopWords();
         parallels();
         //readFile();
         // server();
-        find("even count how many movies");
+//        find("even count how many movies");
     }
 
     public static void parallels() throws InterruptedException {
@@ -67,15 +67,18 @@ public class Indexer {
     }
 
 
-    public static void find(String phrase) {
+    public static HashSet<String> find(String phrase) {
+
         phrase = phrase.toLowerCase();
         phrase = phrase.replaceAll("[^A-Za-zА-Яа-я0-9]", " ");
         String[] words = phrase.split("\\W+");
+        HashSet<String> res;
         if(!multiMap.containsKey(words[0])){
+            res = new HashSet<String>();
+            res.add("No result");
             System.out.println("No result");
         } else {
-            HashSet<String> res = new HashSet<String>(multiMap.get(words[0]));
-
+            res = new HashSet<String>(multiMap.get(words[0]));
 
             for (String word : words) {
                 if (stopWords.contains(word)) {
@@ -83,20 +86,23 @@ public class Indexer {
                 }
                 res.retainAll(multiMap.get(word));
             }
-
             if (res.size() == 0) {
+                res = new HashSet<String>();
+                res.add("No result");
                 System.out.println("Not found");
-                return;
             }
+
             if (res == null) {
+                res = new HashSet<String>();
+                res.add("No result");
                 System.out.println("Not found");
-                return;
             }
             System.out.println("Found in: ");
             for (String num : res) {
                 System.out.println("\t" + num);
             }
         }
+        return res;
     }
 
     public static void initStopWords() {

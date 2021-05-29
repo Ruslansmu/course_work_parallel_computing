@@ -1,6 +1,7 @@
 package com.company;
 import java.io.*;
 import java.net.Socket;
+import java.util.HashSet;
 
 public class Client {
     private static Socket clientSocket; //сокет для общения
@@ -8,6 +9,21 @@ public class Client {
     // мы узнаем что хочет сказать клиент?
     private static BufferedReader in; // поток чтения из сокета
     private static BufferedWriter out; // поток записи в сокет
+
+    private static void send(String msg) {
+        try {
+            out.write(msg + "\n");
+            out.flush();
+        } catch (IOException ignored) {}
+    }
+
+    public static void exeptedAnswer() throws IOException {
+        int n = Integer.parseInt(in.readLine());
+
+        for (int i = 0; i < n; i++) {
+            System.out.println(in.readLine());
+        }
+    }
 
     public static void main(String[] args) {
         try {
@@ -21,16 +37,20 @@ public class Client {
                 // писать туда же
                 out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
 
-                System.out.println("Вы что-то хотели сказать? Введите это здесь:");
-                // если соединение произошло и потоки успешно созданы - мы можем
-                //  работать дальше и предложить клиенту что то ввести
-                // если нет - вылетит исключение
-                String word = reader.readLine(); // ждём пока клиент что-нибудь
-                // не напишет в консоль
-                out.write(word + "\n"); // отправляем сообщение на сервер
-                out.flush();
-                String serverWord = in.readLine(); // ждём, что скажет сервер
-                System.out.println(serverWord); // получив - выводим на экран
+                while(true) {
+                    System.out.println("Вы что-то хотели сказать? Введите это здесь:");
+                    // если соединение произошло и потоки успешно созданы - мы можем
+                    //  работать дальше и предложить клиенту что то ввести
+                    // если нет - вылетит исключение
+                    String request = reader.readLine(); // ждём пока клиент что-нибудь
+                    while (request.isEmpty()){
+                        System.out.println("write some word");
+                        request = reader.readLine(); // ждём пока клиент что-нибудь
+                    }
+                    // не напишет в консоль
+                    send(request);
+                    exeptedAnswer();
+                }
             } finally { // в любом случае необходимо закрыть сокет и потоки
                 System.out.println("Клиент был закрыт...");
                 clientSocket.close();

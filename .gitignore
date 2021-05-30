@@ -1,0 +1,5 @@
+.idea/
+out/
+.gitattributes
+*.iml
+.DS_Store

@@ -1,18 +1,9 @@
 package com.company;
 
 import java.io.*;
-import java.lang.reflect.AnnotatedArrayType;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -29,9 +20,6 @@ public class Indexer {
         allFiles();
         initStopWords();
         parallels();
-        //readFile();
-        // server();
-//        find("even count how many movies");
     }
 
     public static void parallels() throws InterruptedException {
@@ -59,7 +47,6 @@ public class Indexer {
         for (File catalog : dir) {
             File[] files = catalog.listFiles();
             for (int i = 0; i < files.length; i++) {
-                //System.out.println(files[i]);
                 allFilesArr.add(files[i]);
 
             }
@@ -79,7 +66,6 @@ public class Indexer {
             res.add("No result");
             System.out.println("No result");
         } else {
-          //  res = new HashSet<String>(multiMap.get(words[0]));
             boolean flag = true;
             for (String word : words) {
                 if (stopWords.contains(word)) {
@@ -124,7 +110,5 @@ public class Indexer {
             System.out.println(ex.getMessage());
         }
     }
-
-
 
 }

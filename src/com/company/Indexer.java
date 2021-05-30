@@ -8,46 +8,46 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
-
 public class Indexer {
     public static Map<String, ConcurrentLinkedQueue<String>> multiMap = new ConcurrentHashMap<>();
-    public static ArrayList<String> emptyArr = new ArrayList<>();
     public static ArrayList<String> stopWords = new ArrayList<String>();
-    public static ArrayList<File> allFilesArr = new ArrayList<>();
-    public static int NUMBER_THREADS = 4;
+    public static ArrayList<File> allFilesList = new ArrayList<>();
+    public static int THREADS_NUMBER = 4;
 
     public Indexer() throws InterruptedException {//конструктор
-        allFiles();
+        readAllFilesToList();
         initStopWords();
-        parallels();
+        parallels();//нахождение индекса с помощью индекса
     }
 
     public static void parallels() throws InterruptedException {
-        Thread1[] thread = new Thread1[NUMBER_THREADS];
+        long time = System.currentTimeMillis();
+        Thread[] thread = new Thread[THREADS_NUMBER];
 
-        int sizeOfFilesArray = allFilesArr.size();
-        for (int i = 0; i < NUMBER_THREADS; i++) {//разбиваем на потоки
-            thread[i] = new Thread1(allFilesArr, sizeOfFilesArray / NUMBER_THREADS * i,
-                    i == (NUMBER_THREADS - 1) ? sizeOfFilesArray : sizeOfFilesArray / NUMBER_THREADS * (i + 1), stopWords, multiMap);
+        int sizeOfFilesArray = allFilesList.size();
+        for (int i = 0; i < THREADS_NUMBER; i++) {//разбиваем на потоки
+            thread[i] = new Thread(allFilesList, sizeOfFilesArray / THREADS_NUMBER * i,
+                    i == (THREADS_NUMBER - 1) ? sizeOfFilesArray : sizeOfFilesArray / THREADS_NUMBER * (i + 1),
+                    stopWords, multiMap);
             thread[i].start();
         }
-        //waiting for finish of threads
-        for (int i = 0; i < NUMBER_THREADS; i++) {
+        // ожидание завершения работы потоков
+        for (int i = 0; i < THREADS_NUMBER; i++) {
             thread[i].join();
         }
+        System.out.println(System.currentTimeMillis() - time);
     }
 
-    public static void allFiles(){
-
+    public static void readAllFilesToList() {
         File[] dir = {new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet/test/neg"),
                 new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet/test/pos"),
                 new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet/train/neg"),
                 new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet/train/pos"),
-                new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet/train/unsup")};
+                new File("/Users/ruslanl/Documents/6semester/Паралельки/course/testSet/train/unsup")};//масив директорий фвйлов
         for (File catalog : dir) {
             File[] files = catalog.listFiles();
             for (int i = 0; i < files.length; i++) {
-                allFilesArr.add(files[i]);
+                allFilesList.add(files[i]);//запись txt файлов в список
 
             }
         }
@@ -55,60 +55,51 @@ public class Indexer {
 
 
     public static HashSet<String> find(String phrase) {
-
-        phrase = phrase.toLowerCase();
-        phrase = phrase.replaceAll("[^A-Za-zА-Яа-я0-9]", " ");
+        phrase = phrase.toLowerCase();//перевод вв нижний регистр
+        phrase = phrase.replaceAll("[^A-Za-zА-Яа-я0-9]", " ");//удаление лишних символов
         String[] words = phrase.split("\\W+");
         HashSet<String> res = null;
-
-        if(!multiMap.containsKey(words[0]) && words.length == 1){
+        //если нет результата под одному слову
+        if (!multiMap.containsKey(words[0]) && words.length == 1) {
             res = new HashSet<String>();
             res.add("No result");
-            System.out.println("No result");
         } else {
-            boolean flag = true;
+            //делаем обьеденение всех docID  по словам
+            boolean flag = true;//для обозначения первого элемента
             for (String word : words) {
                 if (stopWords.contains(word)) {
                     continue;
                 }
-                if(flag){
+                if (flag) {
                     res = new HashSet<String>(multiMap.get(word));//
                     flag = false;
                 }
                 res.retainAll(multiMap.get(word));
             }
+            //проверка результатов на пустой set результатов
             if (res.size() == 0) {
                 res = new HashSet<String>();
-                res.add("No result");
-                System.out.println("Not found");
+                res.add("Нет ркзультата");
             }
-
             if (res == null) {
                 res = new HashSet<String>();
-                res.add("No result");
-                System.out.println("Not found");
-            }
-            System.out.println("Found in: ");
-            for (String num : res) {
-                System.out.println("\t" + num);
+                res.add("Нет результата");
             }
         }
         return res;
     }
 
-    public static void initStopWords() {
+    public static void initStopWords() {//стоп слова
+        //считываем файл со стоп словами
         File stopWord = new File("/Users/ruslanl/Documents/6semester/Паралельки/course/datasets/aclImdb/stopWords.txt");
-
         try (BufferedReader br = new BufferedReader(new FileReader(stopWord))) {
             //чтение построчно
-            String s;
-            while ((s = br.readLine()) != null) {
-                stopWords.add(s);
+            String wordStop;
+            while ((wordStop = br.readLine()) != null) {
+                stopWords.add(wordStop);//записываем стоп слова
             }
         } catch (IOException ex) {
-
             System.out.println(ex.getMessage());
         }
     }
-
 }

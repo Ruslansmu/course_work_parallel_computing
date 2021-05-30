@@ -1,3 +1,10 @@
+# Description
+
+When performing this work, a program was created that reads
+the .text file and builds an inverted index. An inverted index
+is also called a search index, with the help of it you can
+determine in which documents the words are stored.
+
 # Installation
 
 ```sh

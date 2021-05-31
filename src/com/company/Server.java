@@ -35,8 +35,10 @@ public class Server {
                 System.out.println("Проводиться индексация");
                 Indexer indexer = new Indexer();//при обьявлению обьекта проводим индексацию
                 System.out.println("Индексация завершена!");
+                System.out.println("Сервер ожидает подключение клиента");
                 clientSocket = server.accept(); // ждем подключение клиента
                 try {
+                    System.out.println("Клиент подключен");
                     in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                     out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
                     while (true) {

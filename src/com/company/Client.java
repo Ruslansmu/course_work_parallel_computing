@@ -21,7 +21,6 @@ public class Client {
     //получение ответа от сервера
     public static void exeptedAnswer() throws IOException {
         int n = Integer.parseInt(in.readLine());
-
         for (int i = 0; i < n; i++) {
             System.out.println(in.readLine());
         }
@@ -34,6 +33,7 @@ public class Client {
                 reader = new BufferedReader(new InputStreamReader(System.in));
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+                System.out.println("Вы подключились к сервверу!");
 
                 while (true) {
                     System.out.println("Напишити слово или словосочетания для поиска:");

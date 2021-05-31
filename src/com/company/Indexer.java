@@ -12,12 +12,12 @@ public class Indexer {
     public static Map<String, ConcurrentLinkedQueue<String>> multiMap = new ConcurrentHashMap<>();
     public static ArrayList<String> stopWords = new ArrayList<String>();
     public static ArrayList<File> allFilesList = new ArrayList<>();
-    public static int THREADS_NUMBER = 4;
+    public static int THREADS_NUMBER = 16;
 
     public Indexer() throws InterruptedException {//конструктор
         readAllFilesToList();
         initStopWords();
-        parallels();//нахождение индекса с помощью индекса
+        parallels();//нахождение индекса с помощью розпаралеливания
     }
 
     public static void parallels() throws InterruptedException {
@@ -48,21 +48,19 @@ public class Indexer {
             File[] files = catalog.listFiles();
             for (int i = 0; i < files.length; i++) {
                 allFilesList.add(files[i]);//запись txt файлов в список
-
             }
         }
     }
 
-
     public static HashSet<String> find(String phrase) {
-        phrase = phrase.toLowerCase();//перевод вв нижний регистр
+        phrase = phrase.toLowerCase();//перевод в нижний регистр
         phrase = phrase.replaceAll("[^A-Za-zА-Яа-я0-9]", " ");//удаление лишних символов
         String[] words = phrase.split("\\W+");
         HashSet<String> res = null;
         //если нет результата под одному слову
         if (!multiMap.containsKey(words[0]) && words.length == 1) {
             res = new HashSet<String>();
-            res.add("No result");
+            res.add("Нет результата");
         } else {
             //делаем обьеденение всех docID  по словам
             boolean flag = true;//для обозначения первого элемента
